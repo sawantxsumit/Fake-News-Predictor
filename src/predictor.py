@@ -8,19 +8,29 @@ import requests
 import time
 import gdown  
 # --- MODEL DOWNLOAD CONFIGURATION ---
-MODEL_FILE_ID = "1tnLr7KNZAU3sGYVugWIS8A3wFZqcXIQs"
-TOKENIZER_FILE_ID = "10egovgFOO-XffG9ML4crgwLqOmV6wITM"
+# MODEL_FILE_ID = "1tnLr7KNZAU3sGYVugWIS8A3wFZqcXIQs"
+# TOKENIZER_FILE_ID = "10egovgFOO-XffG9ML4crgwLqOmV6wITM"
 
-# Base directory of this file 
+# # Base directory of this file 
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# MODEL_DIR = os.path.join(BASE_DIR, "model_cache")
+# os.makedirs(MODEL_DIR, exist_ok=True)
+
+# MODEL_FILENAME = "fake_news_lstm_model.keras"
+# DEFAULT_MODEL_PATH = os.path.join(MODEL_DIR, MODEL_FILENAME)
+
+# # Local paths where files will be saved during deployment
+# DEFAULT_TOKENIZER_PATH = os.path.join(MODEL_DIR, "tokenizer.pkl")
+# MAX_LEN = 300
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 MODEL_DIR = os.path.join(BASE_DIR, "model_cache")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 MODEL_FILENAME = "fake_news_lstm_model.keras"
 DEFAULT_MODEL_PATH = os.path.join(MODEL_DIR, MODEL_FILENAME)
 
-# Local paths where files will be saved during deployment
 DEFAULT_TOKENIZER_PATH = os.path.join(MODEL_DIR, "tokenizer.pkl")
 MAX_LEN = 300
 
@@ -81,25 +91,35 @@ class TokenizerPredictor:
         tokenizer_path: str = DEFAULT_TOKENIZER_PATH,
         max_len: int = MAX_LEN,
     ):
-        self.max_len = max_len
+        def __init__(self,
+                 model_path: str = DEFAULT_MODEL_PATH,
+                 tokenizer_path: str = DEFAULT_TOKENIZER_PATH,
+                 max_len: int = MAX_LEN):
 
-        download_file_from_gdrive(MODEL_FILE_ID, model_path)
-        download_file_from_gdrive(TOKENIZER_FILE_ID, tokenizer_path, min_size_bytes=10 * 1024)
+            self.max_len = max_len
 
-        print(f"Loading model from: {model_path}")
-        try:
-            self.model = tf.keras.models.load_model(model_path)
-            print("Model loaded successfully.")
-        except Exception as e:
-            raise RuntimeError(f"Failed to load Keras model from {model_path}: {e}")
+            # 1. MODEL: just load from repo; no download
+            if not os.path.exists(model_path):
+                raise RuntimeError(
+                    f"Model file not found at {model_path}. "
+                    "Make sure fake_news_lstm_model.keras is in src/model_cache "
+                    "and committed to the repo."
+                )
 
-        print(f"Loading tokenizer from: {tokenizer_path}")
-        try:
-            with open(tokenizer_path, "rb") as f:
-                self.tokenizer = pickle.load(f)
-            print("Tokenizer loaded successfully.")
-        except Exception as e:
-            raise RuntimeError(f"Failed to load Tokenizer from {tokenizer_path}: {e}")
+            print(f"Loading model from: {model_path}")
+            try:
+                self.model = tf.keras.models.load_model(model_path)
+                print("Model loaded successfully.")
+            except Exception as e:
+                raise RuntimeError(f"Failed to load Keras model: {e}")
+
+            # 2. TOKENIZER: either load from disk, or still download from Drive if you like
+            try:
+                with open(tokenizer_path, "rb") as f:
+                    self.tokenizer = pickle.load(f)
+                print("Tokenizer loaded successfully.")
+            except Exception as e:
+                raise RuntimeError(f"Failed to load Tokenizer from {tokenizer_path}: {e}")
 
     def _compose(self, title, text):
         title = title or ""
