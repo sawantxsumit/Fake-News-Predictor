@@ -1,0 +1,22 @@
+# --- Python & OS Junk ---
+__pycache__/
+*.pyc
+.DS_Store
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+
+
+# --- Dataset (If large) ---
+data/raw
+*.csv
+
+model_cache/
+
+model/
+
+# --- Local Secrets (If you add API keys later) ---
+.env
+secrets.toml
