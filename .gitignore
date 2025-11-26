@@ -15,7 +15,6 @@ data/raw
 
 model_cache/
 
-model/
 
 # --- Local Secrets (If you add API keys later) ---
 .env

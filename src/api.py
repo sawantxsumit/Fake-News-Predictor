@@ -244,7 +244,7 @@ with tab2:
     st.write("Upload a CSV file containing a column named `text` (and optionally `title`) to analyze multiple articles at once.")
     
     #  SAMPLE CSV DOWNLOADER 
-    csv_path = "test_batch.csv"
+    csv_path = "src/test_batch.csv"
     if os.path.exists(csv_path):
         with open(csv_path, "rb") as f:
             st.download_button(
