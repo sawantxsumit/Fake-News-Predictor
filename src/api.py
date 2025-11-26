@@ -25,7 +25,7 @@ st.markdown("""
         padding: 2rem;
         font-size: 16px;
     }
-    h1 { font-size: 3.5rem !important; font-weight: 800 !important; }
+    h1 { font-size: 3rem !important; font-weight: 800 !important; }
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
         font-size: 1.4rem; font-weight: bold;
     }
