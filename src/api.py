@@ -14,6 +14,14 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    .main { padding: 2rem; }
+    h1, h2, h3 { font-weight: 600 !important; }
+</style>
+""", unsafe_allow_html=True)
+
+
+st.markdown("""
+<style>
    /* Increase header font size */
       h1 {
         font-size: 3.5rem !important;
