@@ -19,15 +19,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+    .main {
+        padding: 2rem;
+        font-size: 16px;
+    }
+    h1 { font-size: 3.5rem !important; font-weight: 800 !important; }
+    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+        font-size: 1.4rem; font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
-   /* Increase header font size */
+   /* Increase header font size
       h1 {
         font-size: 3.5rem !important;
         font-weight: 800 !important;
     }
-    
+    */
     /* Increase font size of tab labels */
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
         font-size: 1.4rem;
