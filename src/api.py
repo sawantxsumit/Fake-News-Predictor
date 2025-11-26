@@ -106,7 +106,7 @@ def update_fields():
 # Sidebar
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/2964/2964063.png", width=70)
-    st.title("News Authenticator")
+    st.title("About")
     st.caption("v1.0.0 | LSTM Model")
     
     st.markdown("---")
