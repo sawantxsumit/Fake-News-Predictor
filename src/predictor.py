@@ -87,7 +87,7 @@ class TokenizerPredictor:
         )
         return padded
 
-    # predict_single_news and predict_batch stay the same
+ 
 
     def predict_single_news(self, title: str, text: str):
         combined = self._compose(title, text)
