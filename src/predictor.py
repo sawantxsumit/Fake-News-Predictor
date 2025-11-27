@@ -132,9 +132,7 @@ class TokenizerPredictor:
             raise AttributeError("Tokenizer not loaded properly.")
 
         seqs = self.tokenizer.texts_to_sequences(cleaned)
-        padded = pad_sequences(
-            seqs, maxlen=self.max_len, padding="pre", truncating="pre"
-        )
+        padded = pad_sequences(seqs, maxlen=self.max_len, padding="pre", truncating="pre")
         return padded
 
     def predict_single_news(self, title: str, text: str):
