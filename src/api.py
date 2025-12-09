@@ -14,7 +14,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .main { padding: 2rem; }
+    .main { padding: 0.1rem; }
     h1, h2, h3 { font-weight: 600 !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -22,7 +22,7 @@ st.markdown("""
 st.markdown("""
 <style>
     .main {
-        padding: 2rem;
+        padding: 1rem;
         font-size: 16px;
     }
     h1 { font-size: 3rem !important; font-weight: 800 !important; }
