@@ -2,6 +2,8 @@
 
 A Deep Learning application that detects fake news articles using a **LSTM** neural network. This project uses Natural Language Processing (NLP) to analyze linguistic patterns and determines if a news article is likely real or fake.
 
+Check out Live app 👉 https://fake-news-predictors.streamlit.app
+
 ## 🚀 Features
 
 * **Real-time Analysis:** Instant verification of news headlines and articles.
@@ -22,7 +24,7 @@ A Deep Learning application that detects fake news articles using a **LSTM** neu
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/fake-news-detector.git](https://github.com/yourusername/fake-news-detector.git)
+    git clone https://github.com/sawantxsumit/fake-news-detector.git
     cd fake-news-detector
     ```
 
