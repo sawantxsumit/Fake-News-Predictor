@@ -24,7 +24,9 @@ Check out Live app 👉 https://fake-news-predictors.streamlit.app
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/sawantxsumit/fake-news-detector.git
+    git clone https://github.com/sawantxsumit/Fake-News-Predictor
+    ```
+    ```
     cd fake-news-detector
     ```
 
