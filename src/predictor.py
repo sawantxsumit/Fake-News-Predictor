@@ -159,7 +159,7 @@ class TokenizerPredictor:
         # means "fake" -- test with the app's built-in Real:/Fake: samples
         # and flip this ternary if predictions come out backwards.
         label = 1 if p > 0.5 else 0
-        label_str = "real" if label == 1 else "fake"
+        label_str = "fake" if label == 1 else "real"
 
         return {
             "label": int(label),
@@ -181,7 +181,7 @@ class TokenizerPredictor:
                 results.append(
                     {
                         "label": int(lab),
-                        "label_str": "real" if lab == 1 else "fake",
+                        "label_str": "fake" if lab == 1 else "real",
                         "probability": float(p),
                     }
                 )
