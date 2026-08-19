@@ -135,9 +135,7 @@ class TokenizerPredictor:
             raise AttributeError("Tokenizer not loaded properly.")
 
         seqs = self.tokenizer.texts_to_sequences(cleaned)
-        # NOTE: must match training (padding='post', truncating='post').
-        # Using 'pre' here (as before) fed the model padding in a position
-        # it never saw during training, which hurts accuracy silently.
+    
         padded = pad_sequences(
             seqs, maxlen=self.max_len, padding="post", truncating="post"
         )
@@ -154,17 +152,16 @@ class TokenizerPredictor:
         probs = self.model.predict(x, verbose=0).reshape(-1)
         p = float(probs[0])
 
-        # IMPORTANT: verify this mapping is correct for your trained model.
-        # The dataset's documentation is inconsistent about whether 0 or 1
-        # means "fake" -- test with the app's built-in Real:/Fake: samples
-        # and flip this ternary if predictions come out backwards.
         label = 1 if p > 0.5 else 0
         label_str = "fake" if label == 1 else "real"
+
+        confidence = p if label == 1 else 1 - p
+        
 
         return {
             "label": int(label),
             "label_str": label_str,
-            "probability": p,
+            "probability": float(confidence),
         }
 
     def predict_batch(self, texts, batch_size=512):
