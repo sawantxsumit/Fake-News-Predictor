@@ -244,6 +244,7 @@ with tab1:
                     msg = "This content exhibits patterns common in misinformation."
                     bar_color = "red"
                 
+                
                 st.write(msg)
                 st.divider()
                 
@@ -253,7 +254,8 @@ with tab1:
                     st.metric("Classification", label_str.upper())
                 with m2:
                     # Confidence is p if Real, else 1-p
-                    conf = prob if is_real else (1.0 - prob)
+                    # conf = prob if is_real else (1.0 - prob)
+                    conf=prob
                     st.metric("Confidence", f"{conf:.1%}")
                 
                 # st.caption("Authenticity Score (0=Fake, 1=Real)")
