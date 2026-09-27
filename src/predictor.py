@@ -7,11 +7,13 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, 'model')
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-MODEL_FILENAME = "fake_news_bilstm_model_20aug.keras"
+MODEL_FILENAME = "ISOT_model_27aug.keras"
 DEFAULT_MODEL_PATH = os.path.join(MODEL_DIR, MODEL_FILENAME)
 
 DEFAULT_TOKENIZER_PATH = os.path.join(MODEL_DIR, "tokenizer.pickle")
