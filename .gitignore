@@ -11,6 +11,7 @@ env/
 
 # --- Dataset (If large) ---
 data/raw
+*.csv
 
 
 model_cache/
