@@ -1,144 +1,52 @@
 import streamlit as st
 import pickle
-import pandas as pd
+from pathlib import Path
+
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+from samples import SAMPLES
 
-# =========================================================
+# Directory containing app.py
+BASE_DIR = Path(__file__).resolve().parent
+
+# Model directory
+MODEL_DIR = BASE_DIR / "model"
+
+# Model files
+MODEL_PATH = MODEL_DIR / "ISOT_model_27aug.keras"
+TOKENIZER_PATH = MODEL_DIR / "tokenizer.pickle"
+
+
 # PAGE CONFIGURATION
-# =========================================================
 
 st.set_page_config(
     page_title="Fake News Predictor",
-    page_icon="📰",
+    page_icon="🕵️",
     layout="wide"
 )
 
 
-# =========================================================
-# DATASET PATHS
-# =========================================================
-
-FAKE_DATASET_PATH = "D:/Fake-News-Predictor/data/Fake.csv"
-REAL_DATASET_PATH = "D:/Fake-News-Predictor/data/True.csv"
-
-
-# =========================================================
-# LOAD DATASET
-# =========================================================
-
-@st.cache_data
-def load_sample_dataset():
-
-    # Load Fake News
-    fake_df = pd.read_csv(FAKE_DATASET_PATH)
-
-    # Load Real News
-    real_df = pd.read_csv(REAL_DATASET_PATH)
-
-    # Add labels
-    fake_df["label"] = 0
-    real_df["label"] = 1
-
-    # Combine datasets
-    df = pd.concat(
-        [fake_df, real_df],
-        ignore_index=True
-    )
-
-    # Remove rows where title/text is missing
-    df = df.dropna(
-        subset=["title", "text"]
-    )
-
-    # Remove empty articles
-    df = df[
-        (df["title"].str.strip() != "") &
-        (df["text"].str.strip() != "")
-    ]
-
-    return df
-
-
-# Load dataset
-dataset = load_sample_dataset()
-
-
-# =========================================================
-# CREATE SAMPLE ARTICLES
-# =========================================================
-
-@st.cache_data
-def create_samples(df):
-
-    # Take 4 real articles
-    real_samples = (
-        df[df["label"] == 1]
-        .sample(n=4, random_state=42)
-    )
-
-    # Take 4 fake articles
-    fake_samples = (
-        df[df["label"] == 0]
-        .sample(n=4, random_state=42)
-    )
-
-    # Combine
-    samples = pd.concat(
-        [real_samples, fake_samples]
-    )
-
-    return samples
-
-
-samples_df = create_samples(dataset)
-
-
-# =========================================================
-# CREATE SAMPLE OPTIONS
-# =========================================================
-
-sample_options = [
-    "Select a sample..."
-]
-
-sample_mapping = {}
-
-
-for index, row in samples_df.iterrows():
-
-    actual_label = "Real" if row["label"] == 1 else "Fake"
-
-    # Create a short title for dropdown
-    title = str(row["title"]).strip()
-
-    if len(title) > 90:
-        title = title[:90] + "..."
-
-    option = f"{actual_label}: {title}"
-
-    sample_options.append(option)
-
-    sample_mapping[option] = row
-
-
-# =========================================================
 # LOAD MODEL AND TOKENIZER
-# =========================================================
 
 @st.cache_resource
 def load_resources():
 
-    model = load_model(
-        "D:/Fake-News-Predictor/src/model/ISOT_model_27aug.keras"
-    )
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(
+            f"Model not found at: {MODEL_PATH}"
+        )
 
-    with open(
-        "D:/Fake-News-Predictor/src/model/tokenizer.pickle",
-        "rb"
-    ) as f:
+    if not TOKENIZER_PATH.exists():
+        raise FileNotFoundError(
+            f"Tokenizer not found at: {TOKENIZER_PATH}"
+        )
 
+    # Load model
+    model = load_model(MODEL_PATH)
+
+    # Load tokenizer
+    with open(TOKENIZER_PATH, "rb") as f:
         tokenizer = pickle.load(f)
 
     return model, tokenizer
@@ -147,130 +55,223 @@ def load_resources():
 model, tokenizer = load_resources()
 
 
-# =========================================================
 # SIDEBAR
-# =========================================================
+
+
+# ==========================================
+# SIDEBAR - FAKE NEWS PREDICTOR
+# ==========================================
+
 
 with st.sidebar:
+    st.title("🕵️ Fake News Predictor")
 
-    st.markdown("## 📰 Fake News")
+    st.caption("Deep Learning • Natural Language Processing")
 
-    st.markdown("### About")
+    st.markdown("---")
 
-    st.write(
-        "A machine learning application that uses an LSTM model "
-        "to classify news articles as REAL or FAKE."
+    st.subheader("About the Project")
+
+    st.markdown(
+        """
+        An end-to-end NLP application that uses a
+        **Bidirectional LSTM (Bi-LSTM)** neural network
+        to classify news articles as **REAL or FAKE**.
+
+        The model learns linguistic and sequential patterns
+        from labeled articles in the ISOT Fake News Dataset.
+        """
     )
 
     st.markdown("---")
 
-    st.markdown("### Dataset")
+    st.subheader("How It Works")
 
-    st.write(
-        f"**Total articles:** {len(dataset):,}"
-    )
+    with st.expander("1. Dataset Preparation", expanded=False):
+        st.markdown(
+            """
+            - Load real and fake news datasets.
+            - Remove missing records and duplicates.
+            - Assign binary labels:
+                - `0` — Fake
+                - `1` — Real
+            - Combine the headline and article body.
+            """
+        )
 
-    st.write(
-        f"**Real articles:** "
-        f"{(dataset['label'] == 1).sum():,}"
-    )
+    with st.expander("2. Text Preprocessing", expanded=False):
+        st.markdown(
+            """
+            - Convert text to lowercase.
+            - Normalize whitespace.
+            - Tokenize using the Keras Tokenizer.
+            - Limit the vocabulary to 30,000 words.
+            - Handle unseen words using `<OOV>`.
+            - Pad or truncate sequences to 750 tokens.
+            """
+        )
 
-    st.write(
-        f"**Fake articles:** "
-        f"{(dataset['label'] == 0).sum():,}"
+    with st.expander("3. Bi-LSTM Architecture", expanded=False):
+        st.markdown(
+            """
+            **Network architecture**
+
+            1. Embedding — 128 dimensions
+            2. Bidirectional LSTM — 64 units per direction
+            3. Dense — 64 neurons, ReLU
+            4. Dropout — 0.50
+            5. Output — 1 sigmoid neuron
+
+            The network learns contextual patterns from
+            sequences of words to perform binary classification.
+            """
+        )
+
+    with st.expander("4. Training Methodology", expanded=False):
+        st.markdown(
+            """
+            - Optimizer: Adam
+            - Loss: Binary Cross-Entropy
+            - Batch size: 64
+            - Maximum epochs: 15
+            - EarlyStopping: patience of 3 epochs
+            - ReduceLROnPlateau: halves the learning rate
+              when validation loss stops improving
+            - ModelCheckpoint: saves the best validation-loss model
+            """
+        )
+
+    with st.expander("5. Evaluation Metrics", expanded=False):
+        st.markdown(
+            """
+            The notebook evaluates the model using:
+
+            - Accuracy
+            - Precision
+            - Recall
+            - F1-score
+            - Binary cross-entropy loss
+            - Confusion matrix
+
+            Training and validation curves are also plotted
+            to inspect learning behaviour.
+            """
+        )
+
+    st.markdown("---")
+
+    st.subheader("Technology Stack")
+
+    st.markdown(
+        """
+        - **Language:** Python
+        - **Data Processing:** Pandas, NumPy
+        - **Deep Learning:** TensorFlow / Keras
+        - **Evaluation:** Scikit-learn
+        - **Visualization:** Matplotlib, Seaborn
+        - **Interface:** Streamlit
+        """
     )
 
     st.markdown("---")
 
-    st.markdown("### How it works")
+    st.subheader("Model Information")
 
-    st.write("**1. Input**")
-    st.write("Enter or select a news article.")
+    st.markdown(
+        """
+        - Dataset: ISOT Fake News Dataset
+        - Task: Binary text classification
+        - Vocabulary limit: 30,000 words
+        - Sequence length: 750 tokens
+        - Classification threshold: 0.50
+        """
+    )
 
-    st.write("**2. Tokenization**")
-    st.write("The article is converted into numerical sequences.")
-
-    st.write("**3. LSTM Model**")
-    st.write("The trained model analyzes the text.")
-
-    st.write("**4. Prediction**")
-    st.write("The model returns a REAL or FAKE classification.")
+    st.info(
+        "The prediction made by this model indicared the patterns learned by it during the training from ISOT fake news dataset"
+        "It does not perfectly verify whether a news is factual."
+    )
 
 
-# =========================================================
 # MAIN TITLE
-# =========================================================
 
-st.title("📰 Fake News Predictor")
+st.title("🕵️ Fake News Predictor")
 
 st.write(
-    "Enter a news article or select an article directly "
-    "from the training dataset to test the prediction model."
+    "Enter a news article to check "
+    "whether it is REAL or FAKE."
 )
 
 st.markdown("---")
 
 
-# =========================================================
-# SAMPLE ARTICLE SELECTION
-# =========================================================
+if "headline" not in st.session_state:
+    st.session_state.headline = ""
 
-selected_sample = st.selectbox(
-    "Quick Load Sample News",
-    sample_options
+if "article_content" not in st.session_state:
+    st.session_state.article_content = ""
+
+if "selected_sample" not in st.session_state:
+    st.session_state.selected_sample = "Select a sample..."
+
+# SAMPLE SELECTION
+
+sample_options = [
+    "Select a sample..."
+] + list(SAMPLES.keys())
+
+
+def load_sample():
+
+    selected = st.session_state.sample_selector
+
+    if selected != "Select a sample...":
+
+        sample = SAMPLES[selected]
+
+        st.session_state.headline = sample["headline"]
+        st.session_state.article_content = sample["content"]
+
+        st.session_state.selected_sample = selected
+
+
+st.selectbox(
+    "Select an article from the dataset",
+    sample_options,
+    key="sample_selector",
+    on_change=load_sample
 )
 
 
-# =========================================================
-# LOAD SELECTED SAMPLE
-# =========================================================
-
-if selected_sample != "Select a sample...":
-
-    sample = sample_mapping[selected_sample]
-
-    default_headline = str(sample["title"])
-    default_content = str(sample["text"])
-
-else:
-
-    default_headline = ""
-    default_content = ""
-
-
-# =========================================================
 # INPUT SECTION
-# =========================================================
 
 col1, col2 = st.columns(2)
 
+# LEFT COLUMN
 
 with col1:
 
     st.subheader("Input Details")
 
     headline = st.text_input(
-        "Headline (Optional)",
-        value=default_headline,
-        placeholder="e.g. Breaking News..."
+        "Headline",
+        key="headline",
+        placeholder="Enter the news headline..."
     )
 
     article_content = st.text_area(
         "Article Content",
-        value=default_content,
-        height=300,
+        key="article_content",
+        height=350,
         placeholder="Paste the full news article here..."
     )
 
     analyze = st.button(
-        "🔍 Analyze Authenticity",
+        "🔍 Analyze News Article",
         use_container_width=True
     )
 
-
-# =========================================================
-# PREDICTION
-# =========================================================
+# RIGHT COLUMN
 
 with col2:
 
@@ -286,17 +287,13 @@ with col2:
 
         else:
 
-            # -------------------------------------------------
             # TOKENIZATION
-            # -------------------------------------------------
 
             sequence = tokenizer.texts_to_sequences(
                 [article_content]
             )
 
-            # -------------------------------------------------
             # PADDING
-            # -------------------------------------------------
 
             padded = pad_sequences(
                 sequence,
@@ -305,9 +302,7 @@ with col2:
                 truncating="post"
             )
 
-            # -------------------------------------------------
             # PREDICTION
-            # -------------------------------------------------
 
             probability = model.predict(
                 padded,
@@ -318,10 +313,7 @@ with col2:
                 probability >= 0.5
             )
 
-
-            # -------------------------------------------------
             # RESULT
-            # -------------------------------------------------
 
             if prediction == 1:
 
@@ -351,10 +343,7 @@ with col2:
                     float(fake_probability)
                 )
 
-
-            # -------------------------------------------------
-            # DETAILS
-            # -------------------------------------------------
+            # PREDICTION DETAILS
 
             st.markdown("---")
 
@@ -370,15 +359,13 @@ with col2:
             )
 
 
-            # -------------------------------------------------
-            # DATASET LABEL
-            # -------------------------------------------------
+            selected = st.session_state.selected_sample
 
-            if selected_sample != "Select a sample...":
+            if selected != "Select a sample...":
 
-                actual_label = sample_mapping[
-                    selected_sample
-                ]["label"]
+                actual_label = SAMPLES[
+                    selected
+                ]["actual_label"]
 
                 actual_label_text = (
                     "REAL"
@@ -386,20 +373,16 @@ with col2:
                     else "FAKE"
                 )
 
-                st.markdown("---")
-
-                st.write(
-                    "### Dataset Ground Truth"
+                predicted_label_text = (
+                    "REAL"
+                    if prediction == 1
+                    else "FAKE"
                 )
 
-                st.info(
-                    f"According to the original dataset, "
-                    f"this article is labelled **{actual_label_text}**."
-                )
-
+                
     else:
 
         st.info(
-            "Select an article from the dataset or enter "
-            "your own news article and click **Analyze Authenticity**."
+            "Select a sample article or enter your "
+            "own article and click **Analyze Authenticity**."
         )

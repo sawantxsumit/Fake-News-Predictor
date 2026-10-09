@@ -20,7 +20,7 @@ DEFAULT_TOKENIZER_PATH = os.path.join(MODEL_DIR, "tokenizer.pickle")
 DEFAULT_CONFIG_PATH = os.path.join(MODEL_DIR, "model_config.json")
 print('Tokenizer path', DEFAULT_TOKENIZER_PATH)
 
-# Fallback only used if model_config.json (saved by the training notebook) is missing.
+# Fallback only used if model_config.json is missing.
 FALLBACK_MAX_LEN = 300
 
 
@@ -48,9 +48,8 @@ def _load_max_len(config_path: str = DEFAULT_CONFIG_PATH, fallback: int = FALLBA
     return fallback
 
 
-# Same stopword list NLTK's stopwords.words('english') returns — hardcoded so the
-# deployed app doesn't need an nltk.download() call (and matching internet access)
-# at runtime, and so it can NEVER silently drift from what training used.
+# Same stopword list NLTK's stopwords.words('english'),  hardcoded so the
+# deployed app doesn't need an nltk.download() call (and internet access) at runtime
 STOPWORDS = {
     'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're",
     "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he',
@@ -85,8 +84,8 @@ def clean_text(text: str) -> str:
     text = re.sub(r'https?://\S+|www\.\S+', ' ', text)   # URLs
     text = re.sub(r'<.*?>', ' ', text)                     # HTML tags
     text = re.sub(r'\S+@\S+', ' ', text)                   # emails
-    text = re.sub(r'[^a-z\s]', ' ', text)                  # letters only (matches training: no digits kept)
-    text = re.sub(r'\s+', ' ', text).strip()               # collapse whitespace
+    text = re.sub(r'[^a-z\s]', ' ', text)                  # letters only 
+    text = re.sub(r'\s+', ' ', text).strip()               # remove whitespace
     tokens = [w for w in text.split() if w not in STOPWORDS and len(w) > 1]
     return ' '.join(tokens)
 
@@ -101,7 +100,7 @@ class TokenizerPredictor:
     ):
         self.max_len = max_len if max_len is not None else _load_max_len(config_path)
 
-        # 1. MODEL
+        # MODEL
         if not os.path.exists(model_path):
             raise RuntimeError(
                 f"Model file not found at {model_path}. "
@@ -116,7 +115,7 @@ class TokenizerPredictor:
         except Exception as e:
             raise RuntimeError(f"Failed to load Keras model: {e}")
 
-        # 2. TOKENIZER
+        # TOKENIZER
         try:
             with open(tokenizer_path, "rb") as f:
                 self.tokenizer = pickle.load(f)
