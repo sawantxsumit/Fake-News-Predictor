@@ -1,8 +1,10 @@
 # 🕵️‍♂️Fake News Predictor
 
-A Deep Learning application that detects fake news articles using a **LSTM** neural network. This project uses Natural Language Processing (NLP) to analyze linguistic patterns and determines if a news article is likely real or fake.
+An end-to-end NLP application that uses a Bidirectional LSTM (Bi-LSTM) neural network to classify news articles as REAL or FAKE.
 
-Check out Live app 👉 https://fake-news-predictors.streamlit.app
+The model learns linguistic and sequential patterns from labeled articles in the ISOT Fake News Dataset.
+
+Check out Live app 👉 https://sawantxsumit-fake-news-predictor-srcapp-hrnxa4.streamlit.app/
 
 ## 🚀 Features
 
